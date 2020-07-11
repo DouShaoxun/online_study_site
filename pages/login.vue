@@ -45,6 +45,8 @@
 <script>
 import '~/assets/css/sign.css'
 import '~/assets/css/iconfont.css'
+import cookie from 'js-cookie'
+import loginApi from '~/api/login'
 
 export default {
   layout: 'sign',
@@ -61,7 +63,13 @@ export default {
   methods: {
     // 登录
     submitLogin() {
-
+      // 执行远程登录接口调用
+      loginApi.submitLogin(this.user).then(response => {
+        // 将jwt写入cookie
+        cookie.set('jwt_token', response.data.token, { domain: 'localhost' })
+        // 跳转到网站的首页面
+        window.location.href = '/'
+      })
     }
   }
 }
