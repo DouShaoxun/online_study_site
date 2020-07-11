@@ -71,6 +71,7 @@
 <script>
 import '~/assets/css/sign.css'
 import '~/assets/css/iconfont.css'
+import registerApi from '~/api/register'
 
 export default {
   layout: 'sign',
@@ -90,17 +91,40 @@ export default {
   methods: {
     // 获取验证码
     getCodeFun() {
-
+      if (this.sending) return // 如果已点击则退出，防止多次重复提交
+      this.sending = true // 用户已点击
+      registerApi.sendMessage(this.member.mobile).then(response => {
+        // 倒计时
+        this.timeDown()
+        // 提示发送成功
+        this.$message.success(response.message)
+      })
     },
 
     // 倒计时
     timeDown() {
+      this.codeText = this.second
 
+      // 定义计时器
+      const timer = setInterval(() => {
+        this.codeText--
+        if (this.codeText < 1) {
+          clearInterval(timer)
+          this.codeText = '获取验证码'
+          this.sending = false
+          this.second = 60
+        }
+        // console.log(new Date())
+      }, 1000)
     },
 
     // 注册
     submitRegister() {
-
+      registerApi.register(this.member).then(response => {
+        // 提示注册成功
+        this.$message.success(response.message)
+        this.$router.push({ path: 'login' })
+      })
     }
   }
 }
